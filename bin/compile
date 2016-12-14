@@ -17,7 +17,8 @@ readonly BUILD_DIR=$1
 cd ${BUILD_DIR}
 
 for pattern in `cat .slug-post-clean`; do
-  rm -rfv $pattern
+  echo -n "Removing ${pattern}: "
+  rm -rfv $pattern | wc -l
 done
 
 exit 0
