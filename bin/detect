@@ -4,7 +4,7 @@ set -euo pipefail
 
 # This pack is valid for apps with a .slug-post-clean in the root
 if [ -f $1/.slug-post-clean ]; then
-  echo "POST BUILD CLEAN"
+  echo "Post build clean"
   exit 0
 else
   echo "Could not find .slug-post-clean file - exiting"
