@@ -12,75 +12,12 @@ readonly BUILDPACK_DIR=$(cd $(dirname $0); cd ..; pwd)
 # Common helper functions
 source $BUILDPACK_DIR/bin/util/common.sh
 
-readonly CLEAN_FILES=.slug-post-clean
 readonly BUILD_DIR=$1
 
 cd ${BUILD_DIR}
 
-#######################################
-# Locate files/dirs in PWD matching globs in $CLEAN_FILES
-# Globals:
-#   CLEAN_FILES
-#   IFS
-#   fileArray
-# Arguments:
-#   None
-# Returns:
-#   None
-#######################################
-findMatchingFiles()
-{
-  local globArray oldIFS
+for pattern in `cat .slug-post-clean`; do
+  rm -rf $pattern
+done
 
-  [[ -f ${CLEAN_FILES} ]] || error_exit "Could not find file ${CLEAN_FILES}"
-
-  status "Finding all files and directories from ${CLEAN_FILES} matching:"
-
-  # Temporarily change IFS from all whitespace to newline only
-  oldIFS=$IFS
-  IFS=$'\n'
-
-  # Read globs to an array
-  mapfile -t globArray < ${CLEAN_FILES}
-
-  # Output globs
-  printf '%s\n' ${globArray[*]}
-
-  status "Matches not found:"
-
-  # Recurse through all matching files/dirs and populate a new array with the result
-  fileArray=()
-  while IFS= read -r -d $'\0'; do
-    fileArray+=("$REPLY")
-  done < <(find ${globArray[*]} -print0)
-
-  # Restore IFS
-  IFS=$oldIFS
-}
-
-#######################################
-# Delete all matching files and directories
-# Globals:
-#   fileArray
-# Arguments:
-#   None
-# Returns:
-#   None
-#######################################
-runRemoval()
-{
-  [[ -z ${fileArray+x} ]] && error_exit "No files or directories to remove from slug"
-
-  status "Removing all matching files and directories from slug"
-  local fileOrDir
-
-  for fileOrDir in "${fileArray[@]}"; do
-    rm -rf "$fileOrDir"
-  done
-
-  echo "Successfully cleaned ${#fileArray[@]} files/directories from slug"
-}
-
-# Run!
-findMatchingFiles
-runRemoval
+exit 0
